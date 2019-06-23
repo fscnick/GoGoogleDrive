@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
@@ -25,8 +26,45 @@ type GoogleDriveClient struct {
 func NewGoogleDriveClient(clientSecretPath string, tokenFilePath string) (*GoogleDriveClient, error) {
 	gdClient := new(GoogleDriveClient)
 
-	if len(tokenFilePath) < 5 || tokenFilePath[len(tokenFilePath)-5:] != ".json" {
-		return nil, fmt.Errorf("tokenFilePath is not end with json")
+	// if len(tokenFilePath) < 5 || tokenFilePath[len(tokenFilePath)-5:] != ".json" {
+	// 	return nil, fmt.Errorf("tokenFilePath is not end with json")
+	// }
+
+	// bytes, err := ioutil.ReadFile(clientSecretPath)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("Unable to read client secret file: %v", err)
+	// }
+
+	// // If modifying these scopes, delete your previously saved token.json.
+	// config, err := google.ConfigFromJSON(bytes, drive.DriveScope)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("Unable to parse client secret file to config: %v", err)
+	// }
+
+	// client, err := getClient(config, tokenFilePath)
+	client, err := newClient(clientSecretPath, tokenFilePath)
+	if err != nil {
+		return nil, fmt.Errorf("Unable to get client from config file: %v", err)
+	}
+
+	gdClient.driveClient, err = drive.New(client)
+	if err != nil {
+		return nil, fmt.Errorf("Unable to retrieve Drive client: %v", err)
+	}
+
+	gdClient.isDriveInitialized = true
+	return gdClient, nil
+}
+
+// NewClient return new google client for further use
+func NewClient(clientSecretPath string, tokenFilePath string) (*http.Client, error) {
+	return newClient(clientSecretPath, tokenFilePath)
+}
+
+func newClient(clientSecretPath string, tokenFilePath string) (*http.Client, error) {
+
+	if filepath.Ext(clientSecretPath) != ".json" || filepath.Ext(tokenFilePath) != ".json" {
+		return nil, fmt.Errorf("clientSecretPath or tokenFilePath is not end with json")
 	}
 
 	bytes, err := ioutil.ReadFile(clientSecretPath)
@@ -45,13 +83,7 @@ func NewGoogleDriveClient(clientSecretPath string, tokenFilePath string) (*Googl
 		return nil, fmt.Errorf("Unable to get client from config file: %v", err)
 	}
 
-	gdClient.driveClient, err = drive.New(client)
-	if err != nil {
-		return nil, fmt.Errorf("Unable to retrieve Drive client: %v", err)
-	}
-
-	gdClient.isDriveInitialized = true
-	return gdClient, nil
+	return client, nil
 }
 
 // Retrieve a token, saves the token, then returns the generated client.
