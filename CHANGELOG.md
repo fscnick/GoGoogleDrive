@@ -1,3 +1,6 @@
+## v0.2.2
+- init google http client only.
+
 ## v0.2.0
 - mkdir 
 - delete by id
