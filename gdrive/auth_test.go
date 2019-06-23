@@ -28,3 +28,18 @@ func TestConnect2Gdrive(tt *testing.T) {
 	}
 
 }
+
+func TestNewClient(tt *testing.T) {
+
+	projectRoot := getProjectRoot()
+
+	clientSecret := projectRoot + "/config/client_secret.json"
+	tokenPath := projectRoot + "/config/token.json"
+
+	_, err := NewClient(clientSecret, tokenPath)
+	if err != nil {
+		tt.Error(err)
+		return
+	}
+
+}
