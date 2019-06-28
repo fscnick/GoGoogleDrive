@@ -2,6 +2,7 @@ package gdrive
 
 import (
 	"bytes"
+	"fmt"
 	"strconv"
 
 	// "fmt"
@@ -29,13 +30,13 @@ func TestListFile(tt *testing.T) {
 		return
 	}
 
-	files, err := gdrive.ListFile(nil, 10)
+	files, err := gdrive.ListFile(nil, 2)
 	if err != nil {
 		tt.Error(err)
 		return
 	}
 
-	if len(files) != 10 {
+	if len(files) != 2 {
 		tt.Log("The count of files is " + strconv.Itoa(len(files)) + " instead of 10")
 		tt.Fail()
 		return
@@ -132,6 +133,27 @@ func TestUploadFileAndDeleteIt(tt *testing.T) {
 		tt.Log(err)
 		tt.Fail()
 		return
+	}
+
+}
+
+func TestListAllFile(tt *testing.T) {
+	var err error
+
+	files, err := gdrive.ListAllFile(testFolder)
+	if err != nil {
+		tt.Error(err)
+		return
+	}
+
+	if len(files) != 10 {
+		tt.Log("The count of files is " + strconv.Itoa(len(files)) + " instead of 10")
+		tt.Fail()
+		return
+	}
+
+	for i := 0; i < len(files); i++ {
+		fmt.Println(files[i].Name)
 	}
 
 }

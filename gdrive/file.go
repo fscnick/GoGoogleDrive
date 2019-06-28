@@ -11,6 +11,7 @@ import (
 )
 
 const DirectoryMimeType = "application/vnd.google-apps.folder"
+const MaxPageSize = 1000
 
 // ListFile return all file under the specific folder.
 func (gdClient *GoogleDriveClient) ListFile(parentFolder *drive.File, maxFiles int64) ([]*drive.File, error) {
@@ -23,7 +24,7 @@ func (gdClient *GoogleDriveClient) ListFile(parentFolder *drive.File, maxFiles i
 	if maxFiles > 0 && maxFiles < 1000 {
 		pageSize = maxFiles
 	} else {
-		pageSize = 1000
+		pageSize = MaxPageSize
 	}
 
 	return gdClient.listFile(parentFolder, maxFiles, pageSize)
@@ -42,6 +43,7 @@ func (gdClient *GoogleDriveClient) listFile(parentFolder *drive.File, maxFiles i
 	apiFields := []googleapi.Field{"nextPageToken", "files(id,name,md5Checksum,mimeType,size,createdTime,parents)"}
 
 	err = gdClient.driveClient.Files.List().Q(queryStr).Fields(apiFields...).PageSize(pageSize).Pages(context.TODO(), func(fl *drive.FileList) error {
+
 		files = append(files, fl.Files...)
 
 		// Stop when we have all the files we need
@@ -64,6 +66,44 @@ func (gdClient *GoogleDriveClient) listFile(parentFolder *drive.File, maxFiles i
 	return files, nil
 }
 
+// ListAllFile list all file under parent folder.
+func (gdClient *GoogleDriveClient) ListAllFile(parentFolder *drive.File) ([]*drive.File, error) {
+	return gdClient.listAllFile(parentFolder)
+}
+
+func (gdClient *GoogleDriveClient) listAllFile(parentFolder *drive.File) ([]*drive.File, error) {
+
+	var queryStr string
+	var err error
+	var files []*drive.File
+
+	if parentFolder == nil {
+		return nil, fmt.Errorf("parentFolder can't be nil")
+	}
+
+	queryStr = fmt.Sprintf("'%s' in parents", parentFolder.Id)
+	apiFields := []googleapi.Field{"nextPageToken", "files(id,name,md5Checksum,mimeType,size,createdTime,parents)"}
+
+	err = gdClient.driveClient.Files.List().Q(queryStr).Fields(apiFields...).PageSize(MaxPageSize).Pages(context.TODO(), func(fl *drive.FileList) error {
+
+		files = append(files, fl.Files...)
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(files) <= 0 {
+		return nil, nil
+	}
+
+	// TODO: check pagetoken if it reached the end.
+	return files, nil
+
+	return nil, nil
+}
 func (gdClient *GoogleDriveClient) getFile(driveFiles []*drive.File, fileName string) *drive.File {
 	for i := 0; i < len(driveFiles); i++ {
 		driveFile := driveFiles[i]
