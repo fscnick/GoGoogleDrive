@@ -1,3 +1,6 @@
+## v0.2.3
+- list all files in a folder (those in trash is counted.)
+
 ## v0.2.2
 - init google http client only.
 
