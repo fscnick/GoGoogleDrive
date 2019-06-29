@@ -146,6 +146,11 @@ func (gdClient *GoogleDriveClient) getFileByName(fileName string, parentFolder *
 	return res.Files[0], nil
 }
 
+// DownloadFileById download specific file by id
+func (gdClient *GoogleDriveClient) DownloadFileById(id string) ([]byte, error) {
+	return gdClient.downloadFileById(id)
+}
+
 func (gdClient *GoogleDriveClient) downloadFileById(id string) ([]byte, error) {
 
 	if len(id) == 0 {
