@@ -66,7 +66,7 @@ func (gdClient *GoogleDriveClient) listFile(parentFolder *drive.File, maxFiles i
 	return files, nil
 }
 
-// ListAllFile list all file under parent folder.
+// ListAllFile list all file under parent folder. Be aware that the files are staying in Trash is also counted into it if you delete these files before.
 func (gdClient *GoogleDriveClient) ListAllFile(parentFolder *drive.File) ([]*drive.File, error) {
 	return gdClient.listAllFile(parentFolder)
 }
