@@ -2,7 +2,6 @@ package gdrive
 
 import (
 	"bytes"
-	"fmt"
 	"strconv"
 
 	// "fmt"
@@ -75,7 +74,7 @@ func TestDownloadFile(tt *testing.T) {
 		return
 	}
 
-	_, err = gdrive.downloadFileById(files[1].Id)
+	_, err = gdrive.DownloadFileById(files[1].Id)
 	if err != nil {
 		tt.Log(err)
 		tt.Fail()
@@ -150,10 +149,6 @@ func TestListAllFile(tt *testing.T) {
 		tt.Log("The count of files is " + strconv.Itoa(len(files)) + " instead of 10")
 		tt.Fail()
 		return
-	}
-
-	for i := 0; i < len(files); i++ {
-		fmt.Println(files[i].Name)
 	}
 
 }
